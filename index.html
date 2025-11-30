@@ -125,6 +125,32 @@
             object-fit: cover;
             border-radius: 12px;
         }
+
+        .result-section h5 {
+            color: #00ffff;
+            margin-top: 15px;
+            border-bottom: 1px solid #1e1e29;
+            padding-bottom: 5px;
+        }
+
+        .result-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .result-list li {
+            background: #1e1e29;
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        /* Loading specific styles */
+        #loading-text {
+            min-height: 40px;
+            /* Jaga agar teks loading tidak melompat-lompat */
+        }
     </style>
 </head>
 
@@ -150,7 +176,8 @@
 
         <div class="center-box text-center" id="loading-screen" style="display:none;">
             <div class="spinner-border text-info"></div>
-            <p class="mt-3">Sedang menganalisis jawaban Anda...</p>
+            <!-- ID baru untuk teks loading -->
+            <p class="mt-3" id="loading-text">Sedang menghitung prediksi kecocokan karir...</p>
         </div>
 
         <div class="center-box" id="result-screen" style="display:none;">
@@ -161,6 +188,40 @@
     </div>
 
     <script>
+        // Gunakan fungsi alert yang lebih halus, karena window.alert() dilarang
+        function showMessage(message) {
+            // Kita akan menggunakan HTML kustom sederhana sebagai pengganti alert
+            const alertBox = document.createElement('div');
+            alertBox.style.cssText = `
+                position: fixed; top: 20px; right: 20px; background: #ff4757; color: white;
+                padding: 15px 25px; border-radius: 8px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                animation: fadeInOut 3s ease-in-out;
+            `;
+            alertBox.innerHTML = `<strong>Peringatan!</strong><br>${message}`;
+            document.body.appendChild(alertBox);
+
+            // CSS Animation keyframes (karena tidak bisa di style tag di file ini)
+            // Asumsi CSS ini akan diproses oleh lingkungan Canvas
+            if (typeof window.fadeInOutDefined === 'undefined') {
+                const style = document.createElement('style');
+                style.innerHTML = `
+                    @keyframes fadeInOut {
+                        0%, 100% { opacity: 0; transform: translateY(-20px); }
+                        10%, 90% { opacity: 1; transform: translateY(0); }
+                    }
+                `;
+                document.head.appendChild(style);
+                window.fadeInOutDefined = true;
+            }
+
+            setTimeout(() => alertBox.remove(), 3000);
+        }
+
+        // Fungsi baru untuk memperbarui teks loading
+        function updateLoadingText(text) {
+            document.getElementById("loading-text").innerText = text;
+        }
+
         const questions = [
             "1. Saya tertarik menganalisis celah keamanan aplikasi.",
             "2. Saya suka mencoba mengeksploitasi sistem.",
@@ -186,11 +247,26 @@
 
         // Dummy images — Replace with your own
         const images = [
-            "assets/q1.jpg", "assets/q2.jpg", "assets/q3.jpg", "assets/q4.jpg",
-            "assets/q5.jpg", "assets/q6.jpg", "assets/q7.jpg", "assets/q8.jpg",
-            "assets/q9.jpg", "assets/q10.jpg", "assets/q11.jpg", "assets/q12.jpg",
-            "assets/q13.jpg", "assets/q14.jpg", "assets/q15.jpg", "assets/q16.jpg",
-            "assets/q17.jpg", "assets/q18.jpg", "assets/q19.jpg", "assets/q20.jpg"
+            "https://placehold.co/400x250/0077b6/ffffff?text=App+Sec",
+            "https://placehold.co/400x250/0077b6/ffffff?text=Exploit",
+            "https://placehold.co/400x250/0077b6/ffffff?text=Reverse+Eng",
+            "https://placehold.co/400x250/0077b6/ffffff?text=Pentest",
+            "https://placehold.co/400x250/0077b6/ffffff?text=Monitoring",
+            "https://placehold.co/400x250/0077b6/ffffff?text=Incident+Analysis",
+            "https://placehold.co/400x250/0077b6/ffffff?text=SIEM",
+            "https://placehold.co/400x250/0077b6/ffffff?text=Malware",
+            "https://placehold.co/400x250/0077b6/ffffff?text=Debugging",
+            "https://placehold.co/400x250/0077b6/ffffff?text=Forensics",
+            "https://placehold.co/400x250/0077b6/ffffff?text=Artifacts",
+            "https://placehold.co/400x250/0077b6/ffffff?text=Network+Arch",
+            "https://placehold.co/400x250/0077b6/ffffff?text=Net+Traffic",
+            "https://placehold.co/400x250/0077b6/ffffff?text=Cloud+Sec",
+            "https://placehold.co/400x250/0077b6/ffffff?text=Zero+Trust",
+            "https://placehold.co/400x250/0077b6/ffffff?text=Vulnerability",
+            "https://placehold.co/400x250/0077b6/ffffff?text=DevSecOps",
+            "https://placehold.co/400x250/0077b6/ffffff?text=TTP",
+            "https://placehold.co/400x250/0077b6/ffffff?text=Threat+Intel",
+            "https://placehold.co/400x250/0077b6/ffffff?text=GRC"
         ];
 
         let currentIndex = -1;
@@ -207,6 +283,9 @@
         // Load question with animation
         function loadQuestion(enter = true) {
             const questionBox = document.getElementById("question-content");
+
+            // Pastikan data gambar ada sebelum diakses
+            const imageSrc = images[currentIndex] || `https://placehold.co/400x250/0077b6/ffffff?text=Image+Missing`;
 
             questionBox.className = enter ? "fade-slide-enter" : "fade-slide-exit";
 
@@ -225,7 +304,7 @@
 
             <!-- LEFT COLUMN: IMAGE -->
             <div class="col-md-7 image-col">
-                <img src="${images[currentIndex]}" class="question-image shadow-lg">
+                <img src="${imageSrc}" class="question-image shadow-lg" onerror="this.onerror=null;this.src='https://placehold.co/400x250/0077b6/ffffff?text=No+Image';">
             </div>
 
             <!-- RIGHT COLUMN: ANSWERS -->
@@ -264,7 +343,7 @@
         // Next Question
         function nextQuestion() {
             if (!answers[currentIndex]) {
-                alert("Anda harus memilih jawaban terlebih dahulu.");
+                showMessage("Anda harus memilih jawaban terlebih dahulu.");
                 return;
             }
 
@@ -287,10 +366,24 @@
             setTimeout(() => loadQuestion(true), 300);
         }
 
+        // Helper untuk merender list dari array
+        function renderList(title, array) {
+            if (!array || array.length === 0) return '';
+            let listHtml = `<div class="result-section"><h5>${title}</h5><ul class="result-list">`;
+            array.forEach(item => {
+                listHtml += `<li>${item}</li>`;
+            });
+            listHtml += `</ul></div>`;
+            return listHtml;
+        }
+
         // Submit
         function submitAnswers() {
             document.getElementById("question-screen").style.display = "none";
             document.getElementById("loading-screen").style.display = "block";
+
+            // Set teks loading awal
+            updateLoadingText("1/3: Menghitung kecocokan karir menggunakan model ML...");
 
             fetch("http://127.0.0.1:5000/predict", {
                     method: "POST",
@@ -301,25 +394,87 @@
                         Object.entries(answers).map(([k, v]) => [`q${parseInt(k)+1}`, v])
                     ))
                 })
-                .then(res => res.json())
-                .then(data => {
-                    document.getElementById("loading-screen").style.display = "none";
-                    document.getElementById("result-screen").style.display = "block";
-
-                    let html = "<ul class='list-group'>";
-                    data.top_3_career_recommendation.forEach(i => {
-                        html +=
-                            `<li class="list-group-item bg-dark text-info"><b>${i[0]}</b> - ${i[1].toFixed(3)}</li>`;
-                    });
-                    html += "</ul><hr><p>Probabilitas lengkap:<br>";
-
-                    for (const [k, v] of Object.entries(data.probabilities)) {
-                        html += `${k}: <b>${v.toFixed(3)}</b><br>`;
+                .then(res => {
+                    // Cek jika response tidak OK (misal 500, 503)
+                    if (!res.ok) {
+                        return res.json().then(errorData => {
+                            throw new Error(errorData.error || `Server error: ${res.status}`);
+                        });
                     }
 
-                    document.getElementById("result").innerHTML = html;
+                    // Langkah 2: Panggilan LLM berhasil (response diterima)
+                    updateLoadingText(
+                        "2/3: Menganalisis jalur karir dan sertifikasi dengan AI (membutuhkan waktu)...");
+                    return res.json();
                 })
-                .catch(err => alert("Gagal terhubung ke backend!"));
+                .then(data => {
+                    // Langkah 3: Data diterima dan diproses untuk ditampilkan
+                    updateLoadingText("3/3: Menyimpan data ke database Neo4j...");
+
+                    // Jeda sebentar sebelum menampilkan hasil (simulasi penulisan DB)
+                    setTimeout(() => {
+                        document.getElementById("loading-screen").style.display = "none";
+                        document.getElementById("result-screen").style.display = "block";
+
+                        const roadmap = data.learning_path;
+
+                        // --- 1. Rekomendasi Karir Utama ---
+                        let html = `
+                            <div class="result-section">
+                                <h5>Rekomendasi Karir Utama (Top 3)</h5>
+                                <ul class='list-group'>
+                        `;
+                        data.top_3_career_recommendation.forEach(i => {
+                            html +=
+                                `<li class="list-group-item bg-dark text-info"><b>${i[0]}</b> - Skor: ${i[1].toFixed(3)}</li>`;
+                        });
+                        html += `</ul></div>`;
+
+                        // --- 2. Ringkasan Karir (dari Gemini) ---
+                        // Tambahkan tautan untuk melihat Graph di sini
+                        html += `
+                            <div class="result-section">
+                                <h5>Karir Utama yang Disarankan: ${roadmap.primary_role}</h5>
+                                <p>${roadmap.why_suited}</p>
+                                <a href="/graph" target="_blank" class="btn btn-sm btn-outline-info rounded-pill">Lihat Peta Keterampilan (Graph)</a>
+                            </div>
+                        `;
+
+                        // --- 3. Learning Path (Beginner, Intermediate, Advanced) ---
+                        html += `
+                            <div class="result-section">
+                                <h5>Jalur Pembelajaran Terperinci</h5>
+                                <p class="text-secondary small">Panduan langkah demi langkah berdasarkan peran inti yang direkomendasikan.</p>
+                            </div>
+                        `;
+                        html += renderList('Level 1: Dasar (Beginner)', roadmap.learning_path.beginner);
+                        html += renderList('Level 2: Menengah (Intermediate)', roadmap.learning_path
+                            .intermediate);
+                        html += renderList('Level 3: Lanjutan (Advanced)', roadmap.learning_path.advanced);
+
+
+                        // --- 4. Sertifikasi dan Proyek ---
+                        html += renderList('Sertifikasi yang Direkomendasikan', roadmap
+                            .recommended_certifications);
+                        html += renderList('Proyek yang Disarankan', roadmap.recommended_projects);
+
+
+                        // --- 5. Probabilitas Lengkap (Opsional) ---
+                        html +=
+                            `<hr><p class="text-secondary small">Probabilitas lengkap untuk semua kategori karir:</p><p>`;
+                        for (const [k, v] of Object.entries(data.probabilities)) {
+                            html += `${k}: <b>${v.toFixed(3)}</b><br>`;
+                        }
+                        html += `</p>`;
+
+                        document.getElementById("result").innerHTML = html;
+                    }, 500); // Penambahan jeda 500ms agar update teks loading Neo4j terlihat
+                })
+                .catch(err => {
+                    document.getElementById("loading-screen").style.display = "none";
+                    document.getElementById("question-screen").style.display = "block"; // Kembali ke kuesioner
+                    showMessage("Gagal terhubung ke backend atau terjadi kesalahan server! Detail: " + err.message);
+                });
         }
     </script>
 

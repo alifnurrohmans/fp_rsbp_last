@@ -53,10 +53,12 @@ GENAI_KEY = os.getenv("GENAI_API_KEY") or "AIzaSyDbzovFompBSiefS4X5ol_UIQmHLVhtF
 genai.configure(api_key=GENAI_KEY)
 
 # Tambahkan pengecekan konfigurasi LLM (walaupun hanya inisialisasi)
-if not GENAI_KEY or GENAI_KEY == "AIzaSyDbzovFompBSiefS4X5ol_UIQmHLVhtFes":
-     print("⚠️ PERINGATAN: GENAI_API_KEY belum diatur atau masih menggunakan placeholder.")
-     # Tidak perlu exit, biarkan error terjadi saat pemanggilan jika key invalid
+if not GENAI_KEY or GENAI_KEY == "ISI_KEY_KAMU":
+      print("⚠️ PERINGATAN: GENAI_API_KEY belum diatur atau masih menggunakan placeholder.")
+      # Tidak perlu exit, biarkan error terjadi saat pemanggilan jika key invalid
 
+# PERBAIKAN UTAMA: Ganti gemini-1.5-pro (yang tidak didukung di endpoint v1beta)
+# menjadi gemini-2.5-flash (yang stabil dan didukung)
 gemini_model = genai.GenerativeModel("gemini-2.5-flash")
 
 
@@ -148,6 +150,7 @@ Generate a JSON object with the following structure:
     except Exception as e:
         # Jika gagal koneksi (API key invalid, network, dll)
         print(f"🚨 ERROR GEMINI CONNECTION: {e}")
+        # Gunakan ConnectionError untuk status 503 di Flask
         raise ConnectionError(f"Koneksi ke Gemini Gagal (Cek API Key & Jaringan): {e}")
 
 
