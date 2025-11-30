@@ -53,11 +53,11 @@ GENAI_KEY = os.getenv("GENAI_API_KEY") or "AIzaSyDbzovFompBSiefS4X5ol_UIQmHLVhtF
 genai.configure(api_key=GENAI_KEY)
 
 # Tambahkan pengecekan konfigurasi LLM (walaupun hanya inisialisasi)
-if not GENAI_KEY or GENAI_KEY == "ISI_KEY_KAMU":
+if not GENAI_KEY or GENAI_KEY == "AIzaSyDbzovFompBSiefS4X5ol_UIQmHLVhtFes":
      print("⚠️ PERINGATAN: GENAI_API_KEY belum diatur atau masih menggunakan placeholder.")
      # Tidak perlu exit, biarkan error terjadi saat pemanggilan jika key invalid
 
-gemini_model = genai.GenerativeModel("gemini-1.5-pro")
+gemini_model = genai.GenerativeModel("gemini-2.5-flash")
 
 
 # ------------------------------------------------------
