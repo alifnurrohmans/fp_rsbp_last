@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cybersecurity Career Questionnaire</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f1f3f5;
+        }
+
+        .card-premium {
+            border-radius: 14px;
+            padding: 25px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            background: white;
+            animation: fadeIn 0.4s ease;
+        }
+
+        #question-section,
+        #result-card {
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container py-5">
+
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">Cybersecurity Career Path Recommendation</h2>
+            <p class="text-muted">Jawab 20 pertanyaan berikut secara bergantian.</p>
+        </div>
+
+        <!-- Start Card -->
+        <div id="start-card" class="card-premium text-center">
+            <h4 class="fw-bold">Mulai Kuisioner</h4>
+            <p class="text-muted">Klik tombol di bawah untuk memulai menjawab pertanyaan.</p>
+            <button class="btn btn-primary btn-lg px-4" id="startBtn">Start</button>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress mt-4" style="height: 22px; display:none;" id="progressContainer">
+            <div id="progressBar" class="progress-bar bg-primary fw-bold" style="width: 5%;">
+                1 / 20
+            </div>
+        </div>
+
+        <!-- Question Section -->
+        <div id="question-section" class="card-premium mt-4">
+            <h5 id="question-text" class="fw-bold"></h5>
+
+            <div class="mt-3">
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="answer" value="1">
+                    <label class="form-check-label">1 - Sangat tidak tertarik</label>
+                </div>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="answer" value="2">
+                    <label class="form-check-label">2 - Tidak tertarik</label>
+                </div>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="answer" value="3">
+                    <label class="form-check-label">3 - Netral</label>
+                </div>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="answer" value="4">
+                    <label class="form-check-label">4 - Tertarik</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="answer" value="5">
+                    <label class="form-check-label">5 - Sangat tertarik</label>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end mt-4">
+                <button class="btn btn-primary btn-lg px-4" id="nextBtn">Next</button>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div class="text-center mt-4" id="loading" style="display:none;">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2 text-primary">Menganalisis menggunakan Machine Learning...</p>
+        </div>
+
+        <!-- Result Card -->
+        <div class="card-premium mt-5" id="result-card">
+            <h4 class="fw-bold mb-3">Hasil Rekomendasi Karir Anda</h4>
+            <div id="result"></div>
+        </div>
+
+    </div>
+
+    <script>
+        const questions = [
+            "1. Saya tertarik menganalisis celah keamanan dalam aplikasi atau sistem.",
+            "2. Saya menikmati mencoba mengeksploitasi sistem untuk melihat seberapa kuat keamanannya.",
+            "3. Saya tertarik mempelajari exploit, payload, reverse shell, atau privilege escalation.",
+            "4. Saya suka bekerja dalam skenario simulasi serangan (CTF, pentest, red teaming).",
+            "5. Saya tertarik memonitor log keamanan, alert, dan pergerakan trafik jaringan.",
+            "6. Saya suka menganalisis insiden keamanan dan menentukan akar masalahnya.",
+            "7. Saya tertarik menggunakan SIEM, IDS/IPS, atau firewall.",
+            "8. Saya tertarik membongkar program atau malware untuk memahami cara kerjanya.",
+            "9. Saya suka melakukan debugging, disassembling, atau menganalisis kode biner.",
+            "10. Saya tertarik menemukan bukti digital di komputer, mobile, atau cloud.",
+            "11. Saya suka menganalisis jejak aktivitas pengguna (log, metadata, artefak sistem).",
+            "12. Saya tertarik merancang atau mengamankan arsitektur jaringan perusahaan.",
+            "13. Saya suka menganalisis trafik jaringan dan konfigurasi router/switch.",
+            "14. Saya tertarik mengamankan infrastruktur Cloud (AWS/Azure/GCP).",
+            "15. Saya suka mempelajari IAM, container security, dan zero trust.",
+            "16. Saya tertarik menemukan dan memperbaiki vulnerability dalam kode sumber.",
+            "17. Saya suka mempelajari secure coding, DevSecOps, dan AppSec.",
+            "18. Saya tertarik mempelajari TTP attacker (MITRE ATT&CK, IOC, threat report).",
+            "19. Saya suka menganalisis intelijen serangan dan pola ancaman.",
+            "20. Saya tertarik membuat kebijakan keamanan, audit, dan compliance (ISO 27001, NIST)."
+        ];
+
+        let current = 0;
+        let answers = {};
+
+        // Start
+        document.getElementById("startBtn").onclick = () => {
+            document.getElementById("start-card").style.display = "none";
+            document.getElementById("progressContainer").style.display = "block";
+            document.getElementById("question-section").style.display = "block";
+            loadQuestion();
+        };
+
+        // Load Question
+        function loadQuestion() {
+            document.getElementById("question-text").innerText = questions[current];
+            document.querySelectorAll("input[name=answer]").forEach(el => el.checked = false);
+            updateProgress();
+        }
+
+        // Next Button
+        document.getElementById("nextBtn").onclick = () => {
+            let selected = document.querySelector("input[name=answer]:checked");
+            if (!selected) {
+                alert("Pilih jawaban terlebih dahulu!");
+                return;
+            }
+
+            answers[`q${current+1}`] = parseInt(selected.value);
+
+            current++;
+
+            if (current < 20) {
+                loadQuestion();
+            } else {
+                submitAnswers();
+            }
+        };
+
+        // Progress
+        function updateProgress() {
+            let percent = ((current + 1) / 20) * 100;
+            document.getElementById("progressBar").style.width = percent + "%";
+            document.getElementById("progressBar").innerText = (current + 1) + " / 20";
+        }
+
+        // Submit -> Backend Python
+        function submitAnswers() {
+            document.getElementById("question-section").style.display = "none";
+            document.getElementById("loading").style.display = "block";
+
+            fetch("http://127.0.0.1:5000/predict", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(answers)
+                })
+                .then(res => res.json())
+                .then(output => {
+                    document.getElementById("loading").style.display = "none";
+
+                    let resultDiv = document.getElementById("result");
+                    resultDiv.innerHTML = `
+            <h5 class="text-primary">Top 3 Rekomendasi Karir:</h5>
+            <ul class="list-group mb-3">
+        `;
+
+                    output.top_3_career_recommendation.forEach(item => {
+                        resultDiv.innerHTML += `
+                <li class="list-group-item d-flex justify-content-between">
+                    <b>${item[0]}</b> <span>${item[1].toFixed(3)}</span>
+                </li>`;
+                    });
+
+                    resultDiv.innerHTML += "</ul><h5>Probabilitas Lengkap:</h5>";
+                    for (const [k, v] of Object.entries(output.probabilities)) {
+                        resultDiv.innerHTML += `${k}: <b>${v.toFixed(3)}</b><br>`;
+                    }
+
+                    document.getElementById("result-card").style.display = "block";
+                })
+                .catch(err => {
+                    alert("Backend Python tidak merespon. Pastikan app.py berjalan.");
+                });
+        }
+    </script>
+
+</body>
+
+</html>
