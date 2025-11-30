@@ -49,7 +49,7 @@ label_cols = [
 # GEMINI CONFIGURATION
 # ------------------------------------------------------
 # Menggunakan API key yang Anda berikan
-GENAI_KEY = os.getenv("GENAI_API_KEY") or "AIzaSyDbzovFompBSiefS4X5ol_UIQmHLVhtFes"
+GENAI_KEY = os.getenv("GENAI_API_KEY") or "AIzaSyCIhvRt5xHmAzk3aUG3W275UzekSbyBCoQ"
 genai.configure(api_key=GENAI_KEY)
 
 # Tambahkan pengecekan konfigurasi LLM (walaupun hanya inisialisasi)
