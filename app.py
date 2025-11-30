@@ -111,36 +111,83 @@ def generate_learning_path(top3):
     best_score = top3[0][1]
 
     prompt = f"""
-Anda adalah konsultan karier dan desainer kurikulum senior di bidang Cybersecurity.
-Tugas Anda adalah membuat peta pembelajaran yang koheren dan logis untuk peran yang paling cocok.
+Anda adalah konsultan karier, ahli kurikulum, dan perancang roadmap profesional di bidang Cybersecurity.
 
-PERAN FOKUS UTAMA: {best_role} (Skor Kecocokan ML: {best_score:.3f})
+TUGAS UTAMA:
+Buat roadmap pembelajaran teknis yang sangat rinci, spesifik, dan sepenuhnya logis berdasarkan PERAN berikut:
 
-INSTRUKSI:
-1. Respon HANYA dalam Bahasa Indonesia.
-2. Fokuskan seluruh 'learning_path' (beginner, intermediate, advanced) hanya pada skill yang diperlukan untuk peran '{best_role}'.
-3. Pastikan 'graph_nodes' berisi semua skill dari 'beginner', 'intermediate', dan 'advanced'.
-4. Pastikan 'graph_edges' mencerminkan ALUR LOGIS dari skill di level Beginner menuju Intermediate, dan Intermediate menuju Advanced (misalnya, Skill A di Beginner LEADS_TO Skill B di Intermediate).
+PERAN UTAMA: {best_role}
+SKOR KECOCOKAN ML: {best_score:.3f}
 
-Hasilkan respon sebagai SATU objek JSON yang valid SAJA (tanpa teks, markdown, atau penjelasan di luar JSON):
+====================================================
+PANDUAN KHUSUS UNTUK GRAPH (PENTING)
+====================================================
+Anda WAJIB membuat graph pembelajaran yang sangat kompleks:
 
-{{
+1. Minimal 40 edges. Ideal: 50–70 edges.
+2. Setiap skill beginner harus:
+   - punya 2–4 sub-skill tambahan yang dimasukkan ke graph_nodes
+   - dihubungkan ke 1–2 skill intermediate sebagai prasyarat
+3. Setiap skill intermediate harus:
+   - punya 2–4 sub-skill
+   - dihubungkan ke 1–2 skill advanced
+4. Setiap skill advanced harus:
+   - punya sub-skill atau turunan tingkat pakar
+5. Urutan graph WAJIB mengikuti alur:
+   Beginner → Intermediate → Advanced → Mastery/Expert (subskills)
+6. Graph harus terasa seperti kurikulum nyata dengan layer:
+   - Fundamental
+   - Core Skills
+   - Specialization
+   - Professional Practice
+   - Mastery
+
+====================================================
+PANDUAN OUTPUT
+====================================================
+
+ATURAN:
+1. Output HARUS berupa JSON valid tanpa teks tambahan.
+2. Semua skill di learning_path WAJIB masuk juga ke graph_nodes.
+3. Graph_nodes harus mencakup:
+   - semua skill beginner
+   - semua skill intermediate
+   - semua skill advanced
+   - subskills tambahan untuk membangun kompleksitas graph
+4. Graph_edges harus panjang, kompleks, dan berlapis (40–70 edges).
+5. Tambahkan learning_resources (minimal 15 skill dengan link pembelajaran).
+6. recommended_projects 3–5 item level beginner → advanced.
+
+FORMAT OUTPUT WAJIB (VALID JSON):
+
+{
   "primary_role": "string",
   "why_suited": "string",
-  "learning_path": {{
-      "beginner": ["string", "string", "string"],
-      "intermediate": ["string", "string", "string"],
-      "advanced": ["string", "string", "string"]
-  }},
+  "learning_path": {
+    "beginner": [...],
+    "intermediate": [...],
+    "advanced": [...]
+  },
+  "learning_resources": [
+    {
+      "skill": "string",
+      "links": ["https://...", "https://..."]
+    }
+  ],
   "recommended_certifications": ["string", "string"],
   "recommended_projects": ["string", "string"],
-  "graph_nodes": ["Skill A", "Skill B", "Skill C"],
+  "graph_nodes": ["string", "string"],
   "graph_edges": [
-      ["Skill A", "Skill B"],
-      ["Skill B", "Skill C"]
-      // ... dan seterusnya, menggambarkan alur pembelajaran berjenjang
+    ["skill A", "skill B"],
+    ["skill B", "skill C"]
   ]
-}}
+}
+
+PENTING:
+- Tidak boleh ada backticks, markdown, atau teks luar JSON.
+- Hanya kirim objek JSON valid.
+
+
 """
 
     # Tambahkan safety checks dan timeout untuk koneksi Gemini
