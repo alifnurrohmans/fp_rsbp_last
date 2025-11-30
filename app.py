@@ -113,73 +113,51 @@ def generate_learning_path(top3):
     prompt = f"""
 Anda adalah konsultan karier, ahli kurikulum, dan perancang roadmap profesional di bidang Cybersecurity.
 
-TUGAS UTAMA:
-Buat roadmap pembelajaran teknis yang sangat rinci, spesifik, dan sepenuhnya logis berdasarkan PERAN berikut:
+TUGAS:
+Buat roadmap pembelajaran teknis yang rinci dan logis berdasarkan peran berikut:
 
 PERAN UTAMA: {best_role}
 SKOR KECOCOKAN ML: {best_score:.3f}
 
 ====================================================
-PANDUAN KHUSUS UNTUK GRAPH (PENTING)
+PANDUAN GRAPH (OPTIMIZED)
 ====================================================
-Anda WAJIB membuat graph pembelajaran yang sangat kompleks:
+Buat graph pembelajaran dengan aturan berikut:
 
-1. Minimal 20 edges. Ideal: 20–30 edges.
-2. Setiap skill beginner harus:
-   - punya 2–4 sub-skill tambahan yang dimasukkan ke graph_nodes
-   - dihubungkan ke 1–2 skill intermediate sebagai prasyarat
-3. Setiap skill intermediate harus:
-   - punya 2–4 sub-skill
-   - dihubungkan ke 1–2 skill advanced
-4. Setiap skill advanced harus:
-   - punya sub-skill atau turunan tingkat pakar
-5. Urutan graph WAJIB mengikuti alur:
-   Beginner → Intermediate → Advanced → Mastery/Expert (subskills)
-6. Graph harus terasa seperti kurikulum nyata dengan layer:
-   - Fundamental
-   - Core Skills
-   - Specialization
-   - Professional Practice
-   - Mastery
-
-====================================================
-PANDUAN OUTPUT
-====================================================
-
-ATURAN:
-1. Output HARUS berupa JSON valid tanpa teks tambahan.
-2. Semua skill di learning_path WAJIB masuk juga ke graph_nodes.
-3. graph_nodes harus mencakup:
+1. Jumlah edges: 20–30.
+2. graph_nodes berisi:
    - semua skill beginner
    - semua skill intermediate
    - semua skill advanced
-   - subskills tambahan untuk membangun kompleksitas graph
-4. graph_edges harus panjang, kompleks, dan berlapis (20–30 edges).
-5. Tambahkan learning_resources (minimal 15 skill dengan link pembelajaran).
-6. recommended_projects 3–5 item level beginner → advanced.
+   - subskill pendukung (maks 1–2 untuk tiap skill).
+3. graph_edges mengikuti struktur ALUR:
+   - Beginner → Intermediate
+   - Intermediate → Advanced
+   - Advanced → Expert/Subskill
+4. Setiap skill beginner harus terhubung minimal ke 1 skill intermediate.
+5. Setiap skill intermediate terhubung minimal ke 1 skill advanced.
+6. Tidak perlu membuat subskill terlalu banyak (maks 10 total).
 
-FORMAT OUTPUT WAJIB (VALID JSON):
+====================================================
+PANDUAN OUTPUT (WAJIB)
+====================================================
+
+ATURAN:
+1. Output HARUS berupa JSON valid tanpa teks lain.
+2. Semua skill di learning_path harus masuk juga ke graph_nodes.
+3. learning_resources wajib berisi minimal 10 skill + link tepercaya.
+4. recommended_projects: 3–5 project nyata dari pemula hingga mahir.
+
+FORMAT OUTPUT (WAJIB):
 
 {{
   "primary_role": "string",
   "why_suited": "string",
 
   "learning_path": {{
-    "beginner": [
-      "skill 1",
-      "skill 2",
-      "skill 3"
-    ],
-    "intermediate": [
-      "skill 1",
-      "skill 2",
-      "skill 3"
-    ],
-    "advanced": [
-      "skill 1",
-      "skill 2",
-      "skill 3"
-    ]
+    "beginner": ["skill 1", "skill 2"],
+    "intermediate": ["skill 1", "skill 2"],
+    "advanced": ["skill 1", "skill 2"]
   }},
 
   "learning_resources": [
@@ -189,9 +167,9 @@ FORMAT OUTPUT WAJIB (VALID JSON):
     }}
   ],
 
-  "recommended_certifications": ["string", "string"],
+  "recommended_certifications": ["string"],
 
-  "recommended_projects": ["string", "string"],
+  "recommended_projects": ["string"],
 
   "graph_nodes": ["skill A", "skill B"],
 
@@ -202,9 +180,10 @@ FORMAT OUTPUT WAJIB (VALID JSON):
 }}
 
 PENTING:
-- Tidak boleh ada backticks, markdown, atau teks luar JSON.
-- Hanya kirim objek JSON yang valid.
+- Tidak boleh ada backticks atau markdown.
+- Hanya kirim JSON valid tanpa teks tambahan.
 """
+
 
 
     # Tambahkan safety checks dan timeout untuk koneksi Gemini
