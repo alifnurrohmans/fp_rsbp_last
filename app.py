@@ -103,22 +103,26 @@ def neo4j_insert_graph(nodes, edges):
                 MERGE (a)-[:LEADS_TO]->(b)
             """, {"src": src, "dst": dst})
 
-
 # ------------------------------------------------------
-# HELPER – LLM LEARNING PATH GENERATION
+# HELPER – LLM LEARNING PATH GENERATION (UPDATED)
 # ------------------------------------------------------
 def generate_learning_path(top3):
+    best_role = top3[0][0]
+    best_score = top3[0][1]
+
     prompt = f"""
-You are a senior cybersecurity career expert and curriculum designer.
-Provide the response as a single, valid JSON object ONLY (no text or markdown outside JSON delimiters).
+Anda adalah konsultan karier dan desainer kurikulum senior di bidang Cybersecurity.
+Tugas Anda adalah membuat peta pembelajaran yang koheren dan logis untuk peran yang paling cocok.
 
-User’s top-3 ML-based predictions:
+PERAN FOKUS UTAMA: {best_role} (Skor Kecocokan ML: {best_score:.3f})
 
-1. {top3[0][0]} (score {top3[0][1]:.3f})
-2. {top3[1][0]} (score {top3[1][1]:.3f})
-3. {top3[2][0]} (score {top3[2][1]:.3f})
+INSTRUKSI:
+1. Respon HANYA dalam Bahasa Indonesia.
+2. Fokuskan seluruh 'learning_path' (beginner, intermediate, advanced) hanya pada skill yang diperlukan untuk peran '{best_role}'.
+3. Pastikan 'graph_nodes' berisi semua skill dari 'beginner', 'intermediate', dan 'advanced'.
+4. Pastikan 'graph_edges' mencerminkan ALUR LOGIS dari skill di level Beginner menuju Intermediate, dan Intermediate menuju Advanced (misalnya, Skill A di Beginner LEADS_TO Skill B di Intermediate).
 
-Generate a JSON object with the following structure:
+Hasilkan respon sebagai SATU objek JSON yang valid SAJA (tanpa teks, markdown, atau penjelasan di luar JSON):
 
 {{
   "primary_role": "string",
@@ -133,8 +137,8 @@ Generate a JSON object with the following structure:
   "graph_nodes": ["Skill A", "Skill B", "Skill C"],
   "graph_edges": [
       ["Skill A", "Skill B"],
-      ["Skill B", "Skill C"],
-      ["Skill A", "Skill C"]
+      ["Skill B", "Skill C"]
+      // ... dan seterusnya, menggambarkan alur pembelajaran berjenjang
   ]
 }}
 """
