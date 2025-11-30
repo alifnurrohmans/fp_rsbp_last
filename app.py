@@ -124,7 +124,7 @@ PANDUAN KHUSUS UNTUK GRAPH (PENTING)
 ====================================================
 Anda WAJIB membuat graph pembelajaran yang sangat kompleks:
 
-1. Minimal 20 edges. Ideal: 20–50 edges.
+1. Minimal 20 edges. Ideal: 20–30 edges.
 2. Setiap skill beginner harus:
    - punya 2–4 sub-skill tambahan yang dimasukkan ke graph_nodes
    - dihubungkan ke 1–2 skill intermediate sebagai prasyarat
@@ -154,7 +154,7 @@ ATURAN:
    - semua skill intermediate
    - semua skill advanced
    - subskills tambahan untuk membangun kompleksitas graph
-4. graph_edges harus panjang, kompleks, dan berlapis (20–50 edges).
+4. graph_edges harus panjang, kompleks, dan berlapis (20–30 edges).
 5. Tambahkan learning_resources (minimal 15 skill dengan link pembelajaran).
 6. recommended_projects 3–5 item level beginner → advanced.
 
