@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Manual Predict Endpoint Tester</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #1a202c;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+        }
+
+        .card {
+            background-color: #2d3748;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        #response-display {
+            background-color: #1a202c;
+            border-radius: 0.5rem;
+            min-height: 300px;
+        }
+
+        .btn-action {
+            background-image: linear-gradient(90deg, #38b2ac, #3182ce);
+            color: white;
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+
+<body class="p-8">
+    <div class="container mx-auto">
+        <h1 class="text-3xl font-bold mb-6 text-center text-teal-300">
+            Flask Predict Endpoint Tester
+        </h1>
+
+        <div class="card p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-white">Konfigurasi Tes</h2>
+
+            <div class="mb-4">
+                <label for="apiUrl" class="block text-sm font-medium mb-1">Endpoint URL (Default:
+                    127.0.0.1:5000/predict)</label>
+                <input type="text" id="apiUrl" value="http://127.0.0.1:5000/predict"
+                    class="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-teal-500 focus:border-teal-500">
+            </div>
+
+            <div class="mb-4">
+                <label for="scoreInput" class="block text-sm font-medium mb-1">Nilai Minat untuk SEMUA 20 Pertanyaan
+                    (1-5)</label>
+                <input type="number" id="scoreInput" value="5" min="1" max="5"
+                    class="w-20 p-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-teal-500 focus:border-teal-500">
+                <span class="text-sm ml-4 text-gray-400">Masukkan 5 untuk hasil minat tinggi (uji Gemini), atau 1 untuk
+                    minat rendah.</span>
+            </div>
+
+            <button id="runTestBtn" class="btn-action px-6 py-2 rounded-full font-bold w-full disabled:opacity-50">
+                Jalankan Test dan Lihat Hasil
+            </button>
+        </div>
+
+        <div class="card p-6">
+            <h2 class="text-xl font-semibold mb-4 text-white">Respon Backend</h2>
+            <pre id="response-display" class="p-4 overflow-auto text-sm"></pre>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('runTestBtn').addEventListener('click', async () => {
+            const apiUrl = document.getElementById('apiUrl').value;
+            const score = parseInt(document.getElementById('scoreInput').value);
+            const responseDisplay = document.getElementById('response-display');
+            const runTestBtn = document.getElementById('runTestBtn');
+
+            if (score < 1 || score > 5) {
+                responseDisplay.textContent = 'ERROR: Nilai minat harus antara 1 dan 5.';
+                return;
+            }
+
+            // 1. Buat Payload Data (q1 - q20)
+            const payload = {};
+            for (let i = 1; i <= 20; i++) {
+                payload[`q${i}`] = score;
+            }
+
+            runTestBtn.disabled = true;
+            runTestBtn.textContent = 'Mengirim data dan menunggu AI... (Maks 30 detik)';
+            responseDisplay.textContent = 'Mengirim data ke backend...';
+            const startTime = Date.now();
+
+            try {
+                // 2. Kirim Permintaan
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+                let data;
+
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    data = {
+                        error: `Gagal membaca respons JSON. Status: ${response.status}`,
+                        raw_text: await response.text()
+                    };
+                }
+
+                // 3. Tampilkan Hasil
+                let statusText = `Status: ${response.status} ${response.statusText} (${duration} detik)\n`;
+
+                if (response.ok) {
+                    statusText = `SUCCESS! Status: ${response.status} (${duration} detik)\n`;
+                } else {
+                    statusText = `FAILURE! Status: ${response.status} (${duration} detik)\n`;
+                }
+
+                responseDisplay.textContent = statusText + JSON.stringify(data, null, 2);
+
+            } catch (error) {
+                const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+                responseDisplay.textContent =
+                    `NETWORK ERROR! Waktu habis atau koneksi gagal (${duration} detik):\n${error.message}\nPastikan server Flask berjalan.`;
+            } finally {
+                runTestBtn.disabled = false;
+                runTestBtn.textContent = 'Jalankan Test dan Lihat Hasil';
+            }
+        });
+    </script>
+</body>
+
+</html>

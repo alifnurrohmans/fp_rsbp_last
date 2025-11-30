@@ -53,7 +53,7 @@ GENAI_KEY = os.getenv("GENAI_API_KEY") or "AIzaSyCIhvRt5xHmAzk3aUG3W275UzekSbyBC
 genai.configure(api_key=GENAI_KEY)
 
 # Tambahkan pengecekan konfigurasi LLM (walaupun hanya inisialisasi)
-if not GENAI_KEY or GENAI_KEY == "ISI_KEY_KAMU":
+if not GENAI_KEY or GENAI_KEY == "AIzaSyCIhvRt5xHmAzk3aUG3W275UzekSbyBCoQ":
       print("⚠️ PERINGATAN: GENAI_API_KEY belum diatur atau masih menggunakan placeholder.")
       # Tidak perlu exit, biarkan error terjadi saat pemanggilan jika key invalid
 
