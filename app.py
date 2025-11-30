@@ -124,7 +124,7 @@ PANDUAN KHUSUS UNTUK GRAPH (PENTING)
 ====================================================
 Anda WAJIB membuat graph pembelajaran yang sangat kompleks:
 
-1. Minimal 40 edges. Ideal: 50–70 edges.
+1. Minimal 20 edges. Ideal: 20–50 edges.
 2. Setiap skill beginner harus:
    - punya 2–4 sub-skill tambahan yang dimasukkan ke graph_nodes
    - dihubungkan ke 1–2 skill intermediate sebagai prasyarat
@@ -149,52 +149,69 @@ PANDUAN OUTPUT
 ATURAN:
 1. Output HARUS berupa JSON valid tanpa teks tambahan.
 2. Semua skill di learning_path WAJIB masuk juga ke graph_nodes.
-3. Graph_nodes harus mencakup:
+3. graph_nodes harus mencakup:
    - semua skill beginner
    - semua skill intermediate
    - semua skill advanced
    - subskills tambahan untuk membangun kompleksitas graph
-4. Graph_edges harus panjang, kompleks, dan berlapis (40–70 edges).
+4. graph_edges harus panjang, kompleks, dan berlapis (20–50 edges).
 5. Tambahkan learning_resources (minimal 15 skill dengan link pembelajaran).
 6. recommended_projects 3–5 item level beginner → advanced.
 
 FORMAT OUTPUT WAJIB (VALID JSON):
 
-{
+{{
   "primary_role": "string",
   "why_suited": "string",
-  "learning_path": {
-    "beginner": [...],
-    "intermediate": [...],
-    "advanced": [...]
-  },
+
+  "learning_path": {{
+    "beginner": [
+      "skill 1",
+      "skill 2",
+      "skill 3"
+    ],
+    "intermediate": [
+      "skill 1",
+      "skill 2",
+      "skill 3"
+    ],
+    "advanced": [
+      "skill 1",
+      "skill 2",
+      "skill 3"
+    ]
+  }},
+
   "learning_resources": [
-    {
+    {{
       "skill": "string",
       "links": ["https://...", "https://..."]
-    }
+    }}
   ],
+
   "recommended_certifications": ["string", "string"],
+
   "recommended_projects": ["string", "string"],
-  "graph_nodes": ["string", "string"],
+
+  "graph_nodes": ["skill A", "skill B"],
+
   "graph_edges": [
     ["skill A", "skill B"],
     ["skill B", "skill C"]
   ]
-}
+}}
 
 PENTING:
 - Tidak boleh ada backticks, markdown, atau teks luar JSON.
-- Hanya kirim objek JSON valid.
-
-
+- Hanya kirim objek JSON yang valid.
 """
+
 
     # Tambahkan safety checks dan timeout untuk koneksi Gemini
     try:
         resp = gemini_model.generate_content(
             prompt, 
-            request_options={'timeout': 30} # Tambahkan timeout 30 detik
+            request_options={'timeout': 90} # Tambahkan timeout 90 detik
         )
         raw = resp.text.strip()
 
